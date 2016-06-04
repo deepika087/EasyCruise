@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+
+  "name": "EasyCruise",
+  "description": "Help you to book your cruise easily",
+  "version": "1.0",
+
+  "icons":  {
+      "16"  : "easycruise.png",
+      "48"  : "easycruise.png",
+      "128" : "easycruise.png" 
+      },
+
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+
+  "content_scripts": [
+    {
+      "matches": ["https://www.expedia.com/*", "http://www.expedia.com/*", "https://www.expedia.com/CruiseCheckout/*" ],
+      "js": ["js/jquery.js", "content.js", "content_utilities.js", "js/bootstrap.min.js", "js/animatedModal.min.js", "js/typed.min.js"],
+      "css" : ["css/animate.min.css", "css/bootstrap.min.css", "css/normalize.min.css", "css/style.css"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources":["img/*"],
+  "permissions": ["background", "http://*/*", "https://*/*"],
+  "browser_action": {
+    "default_title": "xtension will help you to book your cruise easily",
+    "default_icon": "easycruise.png"
+  }		
+}
