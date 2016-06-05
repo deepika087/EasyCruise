@@ -16,7 +16,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.expedia.com/*", "http://www.expedia.com/*", "https://www.expedia.com/CruiseCheckout/*" ],
-      "js": ["js/jquery.js", "content.js", "content_utilities.js", "js/bootstrap.min.js", "js/animatedModal.min.js", "js/typed.min.js"],
+      "js": ["js/jquery.js", "content.js", "content_utilities.js", "js/bootstrap.min.js", "js/animatedModal.min.js", "js/typed.min.js", "js/d3.min.js", "js/d3pie.min.js"],
       "css" : ["css/animate.min.css", "css/bootstrap.min.css", "css/normalize.min.css", "css/style.css"],
       "run_at": "document_start",
       "all_frames": true

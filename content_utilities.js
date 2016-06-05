@@ -13,11 +13,8 @@ function callIBMWatson(reviewsList) {
 
 	var review = getCombinedReviews(reviewsList);
 
-	console.log("Review which will be sent" + review);
-	console.log("Enconded review : ", encodeURIComponent(review));
-
 	var settings = {
-		//url: 'https://gateway-a.watsonplatform.net/calls/text/TextGetCombinedData?text=' + encodeURIComponent(review) + '&outputMode=json&extract=doc-sentiment,doc-emotion&maxRetrieve=3&apikey=323992997e3d6872f55b7b495d1e7c8852db6e74',
+		//url: 'https://gateway-a.watsonplatform.net/calls/text/TextGetCombinedData?text=' + encodeURIComponent(review) + '&outputMode=json&extract=doc-sentiment,doc-emotion,keywords&maxRetrieve=7&sentiment=1&apikey=323992997e3d6872f55b7b495d1e7c8852db6e74',
 		url: 'https://localhost:8090/ibmDummyData',
 		type: 'GET',
 		dataType: 'json',
@@ -45,12 +42,18 @@ function GetModalSummaryNode(closeBtLink, thumbNailLink) {
 "					<div class='col-md-10' id='summaryReviews' style='position: fixed; width: 100%; height: 100%; margin-left: 200px'> " + 
 "          			</div>" + 
 "          		</div>" + 
+"				<div class='row'> " + 
+"					<div class='col-md-10' style='position: fixed; width: 100%; height: 100%; margin-left: 200px'> " + 
+"						<br /><br /><br /><br />" +
+"          			</div>" +  
+"          		</div>" + 
 "				<div class='row'> " +  
-"					<div class='col-md-4' id='emotionbreakup'> " +
+"					<div class='col-md-4' > " +
 "          			</div>" + 
-"					<div class='col-md-4'>" +
+"					<div class='col-md-4' id='freqWords' style='position: fixed; width: 100%; height: 100%; margin-left: 200px';>" +
 "          			</div>" + 
-"					<div class='col-md-4'>" +
+"					<div class='col-md-4' style='position: fixed; width: 100%; height: 100%; margin-left: 400px'>" +
+" 						<div id='pieChart' style='margin-top: -10px'></div> " +
 "          			</div>" + 
 "          		</div>" + 
 " 			 </div>";
@@ -75,7 +78,7 @@ function GetSummarizeAPISettings(reviewsList) {
 	node.value = reviewsCombined;
 	
 	var settings = {
-		url: 'https://localhost:8090/summarizedummy',
+		url: 'https://localhost:8090/summarizedummy', //TODO: change the location
 		type: 'POST',
 		dataType: 'json',
 		data: JSON.stringify(node),
@@ -146,4 +149,92 @@ function PostOnTwitter(shortURL, userData) {
 		accept: 'application/json'
 	};
 	return settings;
+}
+
+function getMostFrequentlyUsedWordSet(keywordList) {
+	var result = "";
+	for (i = 0, len = keywordList.length; i < len; i++) {
+      e=keywordList[i];
+      if ( parseFloat(e.sentiment.score) >= 0.51 && parseFloat(e.relevance) >= 0.51) {
+      	result += "<h4>" + "<img align='left' src= '" + chrome.extension.getURL("img/arrow_up.svg") + "' class='img-responsive' alt='Responsive image' height='20' width='20' >" + e.text + "</h4>";
+      } else {
+      	result += "<h4>" + "<img align='left' src= '" + chrome.extension.getURL("img/arrow_down.svg") + "' class='img-responsive' alt='Responsive image' height='20' width='20'>" + e.text + "</h4>";
+      }
+    }
+    return result;
+}
+
+function injectChart(docEmotions) {
+
+	var pie = new d3pie("pieChart", {
+		"size": {
+			
+			"pieOuterRadius": "70%"
+		},
+		"data": {
+			"sortOrder": "value-desc",	
+			"content": [
+				{
+					"label": "Anger",
+					"value": parseFloat (docEmotions.anger) * 100,
+					"color": "#2484c1"
+				},
+				{
+					"label": "Disgust",
+					"value": parseFloat (docEmotions.disgust) * 100,
+					"color": "#ff0000"
+				},
+				{
+					"label": "Fear",
+					"value": parseFloat (docEmotions.fear) * 100,
+					"color": "#4daa4b"
+				},
+				{
+					"label": "Joy",
+					"value": parseFloat (docEmotions.joy) * 100,
+					"color": "#90c469"
+				},
+				{
+					"label": "Sadness",
+					"value": parseFloat (docEmotions.sadness) * 100,
+					"color": "#daca61"
+				}
+			]
+		},
+		"labels": {
+			"outer": {
+				"pieDistance": 32
+			},
+			"mainLabel": {
+				"fontSize": 11
+			},
+			"percentage": {
+				"color": "#ffffff",
+				"decimalPlaces": 0
+			},
+			"value": {
+				"color": "#adadad",
+				"fontSize": 15
+			},
+			"lines": {
+				"enabled": true
+			},
+			"truncation": {
+				"enabled": true
+			}
+		},
+		"effects": {
+			"pullOutSegmentOnClick": {
+				"effect": "linear",
+				"speed": 400,
+				"size": 8
+			}
+		},
+		"misc": {
+			"gradient": {
+				"enabled": true,
+				"percentage": 100
+			}
+		}
+	});
 }

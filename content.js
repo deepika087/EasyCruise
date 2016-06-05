@@ -36,7 +36,6 @@ $(document).ready(function(){
                 var summarizeAPI = GetSummarizeAPISettings(reviewsList);
                 $.ajax(summarizeAPI).done(function(data) {
 
-                    $('#reviewsmiley').attr( "src", chrome.extension.getURL("img/happysmiley.png") );
                     $("#summaryReviews").append('<span class="element"></span>');
                     $(".element").typed({
                         strings: ["<b>Summary ^2000</b>", data.value],
@@ -52,8 +51,23 @@ $(document).ready(function(){
                 IBMDataSettings = callIBMWatson(reviewsList);	
                 $.ajax(IBMDataSettings).done(function(data) {
                     console.log("success" + JSON.stringify(data) + "Emotion only : " , JSON.stringify(data.docEmotions));
-                    //TODO: Create charts + Most talked words
                     
+                    if (parseFloat(data.docSentiment.score) >= 0.51) {
+                        $('#reviewsmiley').attr( "src", chrome.extension.getURL("img/happysmiley.png") );    
+                    } else {
+                        $('#reviewsmiley').attr( "src", chrome.extension.getURL("img/sadsmiley.png") );
+                    }
+                    
+                    //Set Most Frequently used data
+                    mostFrqWords = getMostFrequentlyUsedWordSet(data.keywords);
+                    $("#freqWords").typed({
+                        strings: [ "<h3>Most Frequent Words </h3>" + mostFrqWords ],
+                        contentType: 'html',
+                        typeSpeed: 0
+                    });
+
+                    //Inject the Pit chart
+                    injectChart(data.docEmotions);
                 }).fail(function(jqXHR, textStatus, errorThrown) {
                     console.log("Something wrong with IBM Analyitcs API" + textStatus + "," + errorThrown + "," + jqXHR.responseText);
                 });
